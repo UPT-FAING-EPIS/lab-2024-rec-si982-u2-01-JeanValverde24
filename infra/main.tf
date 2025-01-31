@@ -35,7 +35,7 @@ resource "random_integer" "ri" {
 
 resource "azurerm_resource_group" "rg" {
   name     = "upt-arg-${random_integer.ri.result}"
-  location = "eastus"
+  location = "westus"
 }
 
 resource "azurerm_service_plan" "appserviceplan" {
