@@ -34,6 +34,8 @@
 ```Powershell
 md infra
 ```
+![alt text](imagenes/image.png)
+
 2. Abrir Visual Studio Code, seguidamente abrir la carpeta del repositorio clonado del laboratorio, en el folder Infra, crear el archivo main.tf con el siguiente contenido
 ```Terraform
 terraform {
@@ -127,6 +129,7 @@ resource "azurerm_mssql_database" "sqldb" {
   sku_name = "Free"
 }
 ```
+![alt text](imagenes/image1.png)
 
 3. Abrir un navegador de internet y dirigirse a su repositorio en Github, en la sección *Settings*, buscar la opción *Secrets and Variables* y seleccionar la opción *Actions*. Dentro de esta crear los siguientes secretos
 > AZURE_USERNAME: Correo o usuario de cuenta de Azure
@@ -134,6 +137,8 @@ resource "azurerm_mssql_database" "sqldb" {
 > SUSCRIPTION_ID: ID de la Suscripción de cuenta de Azure
 > SQL_USER: Usuario administrador de la base de datos, ejm: adminsql
 > SQL_PASS: Password del usuario administrador de la base de datos, ejm: upt.2025
+
+![alt text](imagenes/image2.png)
 
 5. En el Visual Studio Code, crear la carpeta .github/workflows en la raiz del proyecto, seguidamente crear el archivo deploy.yml con el siguiente contenido
 <details><summary>Click to expand: deploy.yml</summary>
@@ -299,6 +304,8 @@ jobs:
             terraform apply -var="suscription_id=${{ secrets.SUSCRIPTION_ID }}" -var="sqladmin_username=${{ secrets.SQL_USER }}" -var="sqladmin_password=${{ secrets.SQL_PASS }}" -auto-approve main.tfplan
 ```
 </details>
+
+![alt text](imagenes/image4.png)
 
 6. En el Visual Studio Code, guardar los cambios y subir los cambios al repositorio. Revisar los logs de la ejeuciòn de automatizaciòn y anotar el numero de identificaciòn de Grupo de Recursos y Aplicación Web creados
 ```Bash
