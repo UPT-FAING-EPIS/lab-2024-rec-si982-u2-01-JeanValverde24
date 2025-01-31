@@ -329,6 +329,7 @@ dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version=8.
 dotnet add package Microsoft.AspNetCore.Components.QuickGrid --version=8.0.0
 dotnet add package Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter --version=8.0.0
 ```
+![alt text](imagenes/image6.png)
 
 2. En el terminal, ejecutar el siguiente comando para crear los modelos de autenticación de identidad dentro de la aplicación.
 ```Bash
@@ -343,11 +344,14 @@ dotnet aspnet-codegenerator identity --useDefaultUI
 >       YYY, usuario administrador de base de datos
 >       ZZZ, password del usuario de base de datos
 
+![alt text](imagenes/image7.png)
+
 4. En el terminal, ejecutar el siguiente comando para crear las tablas de base de datos de identidad.
 ```Bash
 dotnet ef migrations add CreateIdentitySchema
 dotnet ef database update
 ```
+![alt text](imagenes/image8.png)
 
 5. En el Visual Studio Code, en la carpeta src/Areas/Domain, crear el archivo UrlMapping.cs con el siguiente contenido:
 ```CSharp
@@ -374,7 +378,8 @@ public class UrlMapping
     public string ShortenedUrl { get; set; } = string.Empty;
 }
 ```
-  
+![alt text](imagenes/image9.png)
+
 6. En el Visual Studio Code, en la carpeta src/Areas/Domain, crear el archivo ShortenContext.cs con el siguiente contenido:
 ```CSharp
 using Microsoft.EntityFrameworkCore;
@@ -404,6 +409,7 @@ public class ShortenContext : DbContext
     public DbSet<UrlMapping> UrlMappings { get; set; }
 }
 ```
+![alt text](imagenes/image10.png)
 
 7. En el Visual Studio Code, en la carpeta src, modificar el archivo Program.cs con el siguiente contenido al inicio:
 ```CSharp
@@ -445,12 +451,14 @@ app.MapRazorPages();
 
 app.Run();
 ```
+![alt text](imagenes/image11.png)
 
 8. En el terminal, ejecutar los siguientes comandos para realizar la migración de la entidad UrlMapping
 ```Powershell
 dotnet ef migrations add DomainModel --context ShortenContext
 dotnet ef database update --context ShortenContext
 ```
+![alt text](imagenes/image12.png)
 
 9. En el terminal, ejecutar el siguiente comando para crear nu nuevo controlador y sus vistas asociadas.
 ```Powershell
@@ -460,6 +468,7 @@ dotnet aspnet-codegenerator razorpage Edit Edit -m UrlMapping -dc ShortenContext
 dotnet aspnet-codegenerator razorpage Delete Delete -m UrlMapping -dc ShortenContext -outDir Pages/UrlMapping -udl
 dotnet aspnet-codegenerator razorpage Details Details -m UrlMapping -dc ShortenContext -outDir Pages/UrlMapping -udl
 ```
+![alt text](imagenes/image13.png)
 
 10. En el Visual Studio Code, en la carpeta src, modificar el archivo _Layout.cshtml, Adicionando la siguiente opciòn dentro del navegador:
 ```CSharp
@@ -547,6 +556,7 @@ COPY --from=build /app/out .
 # Definir el comando de entrada para ejecutar la aplicación
 ENTRYPOINT ["dotnet", "Shorten.dll"]
 ``` 
+![alt text](imagenes/image14.png)
 
 ### DESPLIEGUE DE LA APLICACION 
 
@@ -556,8 +566,12 @@ az webapp deployment list-publishing-profiles --name upt-awa-XXX --resource-grou
 ```
 > Donde XXX; es el numero de identicación de la Aplicación Web creada en la primera sección
 
+![alt text](imagenes/image15.png)
+
 2. Abrir un navegador de internet y dirigirse a su repositorio en Github, en la sección *Settings*, buscar la opción *Secrets and Variables* y seleccionar la opción *Actions*. Dentro de esta hacer click en el botón *New Repository Secret*. En el navegador, dentro de la ventana *New Secret*, colocar como nombre AZURE_WEBAPP_PUBLISH_PROFILE y como valor el obtenido en el paso anterior.
  
+![alt text](imagenes/image16.png)
+
 3. En el Visual Studio Code, dentro de la carpeta `.github/workflows`, crear el archivo ci-cd.yml con el siguiente contenido
 ```Yaml
 name: Construcción y despliegue de una aplicación MVC a Azure
