@@ -28,19 +28,16 @@ provider "azurerm" {
   subscription_id = var.suscription_id
 }
 
-# Generate a random integer to create a globally unique name
 resource "random_integer" "ri" {
   min = 100
   max = 999
 }
 
-# Create the resource group
 resource "azurerm_resource_group" "rg" {
   name     = "upt-arg-${random_integer.ri.result}"
   location = "eastus"
 }
 
-# Create the Linux App Service Plan
 resource "azurerm_service_plan" "appserviceplan" {
   name                = "upt-asp-${random_integer.ri.result}"
   location            = azurerm_resource_group.rg.location
