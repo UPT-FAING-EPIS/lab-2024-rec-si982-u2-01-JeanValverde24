@@ -46,7 +46,6 @@ resource "azurerm_service_plan" "appserviceplan" {
   sku_name            = "F1"
 }
 
-# Create the web app, pass in the App Service Plan ID
 resource "azurerm_linux_web_app" "webapp" {
   name                  = "upt-awa-${random_integer.ri.result}"
   location              = azurerm_resource_group.rg.location
