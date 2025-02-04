@@ -2,7 +2,7 @@ name: Construcción y despliegue de una aplicación MVC a Azure
 
 env:
   AZURE_WEBAPP_NAME: upt-awa-524  # Aqui va el nombre de su aplicación
-  DOTNET_VERSION: '8'                     # la versión de .NET
+  DOTNET_VERSION: '8'             # la versión de .NET
 
 on:
   push:
