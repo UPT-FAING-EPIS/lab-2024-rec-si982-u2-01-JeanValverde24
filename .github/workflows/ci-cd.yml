@@ -1,7 +1,7 @@
 name: Construcción y despliegue de una aplicación MVC a Azure
 
 env:
-  AZURE_WEBAPP_NAME: upt-awa-524  # Aqui va el nombre de su aplicación
+  AZURE_WEBAPP_NAME: upt-awa-XXX  # Aqui va el nombre de su aplicación
   DOTNET_VERSION: '8'             # la versión de .NET
 
 on:
@@ -24,12 +24,12 @@ jobs:
         with:
             registry: ghcr.io
             username: ${{ github.actor }}
-            password: ${{ secrets.GHCR_PAT }}
+            password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 'Build Inventory Image'
         run: |
-            docker build ./src --tag ghcr.io/jeanvalverde24/shorten:9bdb07d3313449f3dc40aaf1230b08da52a268e6
-            docker push ghcr.io/jeanvalverde24/shorten:9bdb07d3313449f3dc40aaf1230b08da52a268e6
+            docker build ./src --tag ghcr.io/${{ github.actor }}/shorten:${{ github.sha }}
+            docker push ghcr.io/${{ github.actor }}/shorten:${{ github.sha }}
 
   deploy:
     permissions:
@@ -44,13 +44,15 @@ jobs:
       - name: 'Login to Azure'
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          subscription-id: ${{ secrets.SUSCRIPTION_ID }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          auth-type: user
+          username: ${{ secrets.AZURE_USERNAME }}
+          password: ${{ secrets.AZURE_PASSWORD }}
 
       - name: Desplegar a Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          images: ghcr.io/${{ github.actor }}/shorten:${{ github.sha }}
