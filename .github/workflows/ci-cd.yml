@@ -14,6 +14,8 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write  # Habilitar permisos de id-token
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,7 +32,6 @@ jobs:
         run: |
             docker build ./src --tag ghcr.io/jeanvalverde24/shorten:9bdb07d3313449f3dc40aaf1230b08da52a268e6
             docker push ghcr.io/jeanvalverde24/shorten:9bdb07d3313449f3dc40aaf1230b08da52a268e6
-
   deploy:
     permissions:
       contents: none
@@ -44,11 +45,7 @@ jobs:
       - name: 'Login to Azure'
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          auth-type: 'SERVICE_PRINCIPAL'
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Desplegar a Azure Web App
         id: deploy-to-webapp
@@ -56,4 +53,4 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          images: ghcr.io/${{ github.actor }}/shorten:${{ github.sha }}
+          images: ghcr.io/jeanvalverde24/shorten:9bdb07d3313449f3dc40aaf1230b08da52a268e6
