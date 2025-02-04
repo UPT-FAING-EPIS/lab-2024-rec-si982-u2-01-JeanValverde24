@@ -28,8 +28,8 @@ jobs:
 
       - name: 'Build Inventory Image'
         run: |
-            docker build ./src --tag ghcr.io/${{ github.actor }}/shorten:${{ github.sha }}
-            docker push ghcr.io/${{ github.actor }}/shorten:${{ github.sha }}
+            docker build ./src --tag ghcr.io/jeanvalverde24/shorten:9bdb07d3313449f3dc40aaf1230b08da52a268e6
+            docker push ghcr.io/jeanvalverde24/shorten:9bdb07d3313449f3dc40aaf1230b08da52a268e6
 
   deploy:
     permissions:
