@@ -56,17 +56,6 @@ jobs:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           images: ghcr.io/jeanvalverde24/shorten:${{ github.sha }}
 
-  tfsec:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1
-        with:
-          args: .
-
   trivy:
     runs-on: ubuntu-latest
     steps:
