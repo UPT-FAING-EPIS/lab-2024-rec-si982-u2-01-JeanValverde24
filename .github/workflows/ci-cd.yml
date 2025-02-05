@@ -30,8 +30,8 @@ jobs:
 
       - name: 'Build Inventory Image'
         run: |
-            docker build ./src --tag ghcr.io/jeanvalverde24/shorten:9bdb07d3313449f3dc40aaf1230b08da52a268e6
-            docker push ghcr.io/jeanvalverde24/shorten:9bdb07d3313449f3dc40aaf1230b08da52a268e6
+            docker build ./src --tag ghcr.io/jeanvalverde24/shorten:${{ github.sha }}
+            docker push ghcr.io/jeanvalverde24/shorten:${{ github.sha }}
 
   deploy:
     permissions:
@@ -54,4 +54,4 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          images: ghcr.io/jeanvalverde24/shorten:9bdb07d3313449f3dc40aaf1230b08da52a268e6
+          images: ghcr.io/jeanvalverde24/shorten:${{ github.sha }}
