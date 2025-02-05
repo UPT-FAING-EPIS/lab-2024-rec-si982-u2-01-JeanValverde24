@@ -959,7 +959,6 @@ tput table;9263c12a-2688-4c01-8a4f-82fb8a85eff7Timestamp             Name      T
 2025-02-04T19:58:00Z  Requests  0.0
 2025-02-04T19:59:00Z  Requests  1.0
 ```
-
 2. Realizar el scanero del codigo de terraform utilizando TfSec o Trivy dentro del Github Action.
 3. En la aplicación completar el envio de correo para el registro de usuarios (https://learn.microsoft.com/es-es/aspnet/core/security/authentication/accconfirm?view=aspnetcore-9.0&tabs=visual-studio)
 4. En la aplicación migrar la cadena de conexion a la base de datos a una Configuración de aplicación de Azure, como una variable de ambiente.
