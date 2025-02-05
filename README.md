@@ -805,6 +805,8 @@ az group export -n upt-arg-XXX > lab_01.json
 ## ACTIVIDADES ENCARGADAS
 
 1. Subir el diagrama al repositorio como lab_02.png y el reporte de metricas.
+   
+![image](https://github.com/user-attachments/assets/7727b9f5-dfca-485d-9a8b-74bea0c527d9)
 
 ![alt text](lab_02.png)
 
