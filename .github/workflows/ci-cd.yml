@@ -14,7 +14,7 @@ on:
 permissions:
   contents: read
   packages: write
-  id-token: write  # Habilitar permisos de id-token
+  id-token: write  
 
 jobs:
   build:
