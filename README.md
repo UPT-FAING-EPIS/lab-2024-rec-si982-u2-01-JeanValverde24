@@ -970,4 +970,9 @@ tput table;9263c12a-2688-4c01-8a4f-82fb8a85eff7Timestamp             Name      T
 
 3. En la aplicación completar el envio de correo para el registro de usuarios (https://learn.microsoft.com/es-es/aspnet/core/security/authentication/accconfirm?view=aspnetcore-9.0&tabs=visual-studio)
 4. En la aplicación migrar la cadena de conexion a la base de datos a una Configuración de aplicación de Azure, como una variable de ambiente.
+
+![alt text](imagenes/actividad4.png)
+
+![alt text](imagenes/actividad4-1.png)
+
 5. Realizar el escaneo de vulnerabilidad con SonarCloud y Semgrep dentro del Github Action correspondiente.
