@@ -83,12 +83,14 @@ namespace Shorten.Areas.Identity.Pages.Account
                         "/Account/ConfirmEmail",
                         pageHandler: null,
                         values: new { userId = user.Id, code = code },
-                        protocol: Request.Scheme);
+                        protocol: Request.Scheme) ?? string.Empty;
 
-                    if (callbackUrl != null)
+                    if (!string.IsNullOrEmpty(callbackUrl))
                     {
                         await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                             $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                        TempData["ConfirmationMessage"] = "Please confirm your email by clicking the link sent to your email address.";
                     }
 
                     return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
@@ -99,6 +101,7 @@ namespace Shorten.Areas.Identity.Pages.Account
                 }
             }
 
+            // If we got this far, something failed, redisplay form
             return Page();
         }
     }
