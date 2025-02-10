@@ -65,6 +65,9 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: 'Set SMTP_TOKEN environment variable'
+        run: echo "SMTP_TOKEN=${{ secrets.SMTP_TOKEN }}" >> $GITHUB_ENV
+
       - name: 'Desplegar a Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2

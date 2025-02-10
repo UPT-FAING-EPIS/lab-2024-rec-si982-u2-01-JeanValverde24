@@ -91,15 +91,7 @@ namespace Shorten.Areas.Identity.Pages.Account
                             $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
                     }
 
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
+                    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                 }
                 foreach (var error in result.Errors)
                 {
@@ -107,7 +99,6 @@ namespace Shorten.Areas.Identity.Pages.Account
                 }
             }
 
-            // If we got this far, something failed, redisplay form
             return Page();
         }
     }

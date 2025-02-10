@@ -1,63 +1,106 @@
-@page
-@model Shorten.Areas.Identity.Pages.Account.RegisterModel
-@{
-    ViewData["Title"] = "Register";
-}
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text.Encodings.Web;
+using System.Threading.Tasks;
+using Services.Interfaces;
 
-<h1>@ViewData["Title"]</h1>
-<h4>Create a new account.</h4>
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form method="post">
-            <h4>Use a local account to log in.</h4>
-            <hr />
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Input.Email">Email Address</label>
-                <input asp-for="Input.Email" class="form-control" placeholder="Enter your email address" />
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.Password">Password</label>
-                <input asp-for="Input.Password" class="form-control" placeholder="Enter your password" />
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Confirm your password" />
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button type="submit" class="btn btn-primary">Register</button>
-        </form>
-    </div>
-    <div class="col-md-6">
-        <section>
-            <h4>Use another service to log in.</h4>
-            <hr />
-            @{
-                if (Model.ExternalLogins != null && Model.ExternalLogins.Count > 0)
+namespace Shorten.Areas.Identity.Pages.Account
+{
+    [AllowAnonymous]
+    public class RegisterModel : PageModel
+    {
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly ILogger<RegisterModel> _logger;
+        private readonly Services.Interfaces.IEmailSender _emailSender;
+
+        public RegisterModel(
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
+            ILogger<RegisterModel> logger,
+            Services.Interfaces.IEmailSender emailSender)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _logger = logger;
+            _emailSender = emailSender;
+        }
+
+        [BindProperty]
+        public InputModel Input { get; set; } = new InputModel();
+
+        public string ReturnUrl { get; set; } = string.Empty;
+
+        public IList<AuthenticationScheme> ExternalLogins { get; set; } = new List<AuthenticationScheme>();
+
+        public class InputModel
+        {
+            [Required]
+            [EmailAddress]
+            [Display(Name = "Email")]
+            public string Email { get; set; } = string.Empty;
+
+            [Required]
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [DataType(DataType.Password)]
+            [Display(Name = "Password")]
+            public string Password { get; set; } = string.Empty;
+
+            [DataType(DataType.Password)]
+            [Display(Name = "Confirm password")]
+            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            public string ConfirmPassword { get; set; } = string.Empty;
+        }
+
+        public async Task OnGetAsync(string returnUrl = null)
+        {
+            ReturnUrl = returnUrl ?? Url.Content("~/");
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+        }
+
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        {
+            returnUrl ??= Url.Content("~/");
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            if (ModelState.IsValid)
+            {
+                var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+                var result = await _userManager.CreateAsync(user, Input.Password);
+                if (result.Succeeded)
                 {
-                    <div>
-                        <p>
-                            @foreach (var provider in Model.ExternalLogins)
-                            {
-                                <button type="submit" class="btn btn-outline-secondary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                            }
-                        </p>
-                    </div>
+                    _logger.LogInformation("User created a new account with password.");
+
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { userId = user.Id, code = code },
+                        protocol: Request.Scheme);
+
+                    if (callbackUrl != null)
+                    {
+                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    }
+
+                    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                 }
-                else
+                foreach (var error in result.Errors)
                 {
-                    <p>
-                        There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a> for details on setting up this ASP.NET application to support logging in via external services.
-                    </p>
+                    ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
-        </section>
-    </div>
-</div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+            // If we got this far, something failed, redisplay form
+            return Page();
+        }
+    }
 }

@@ -975,4 +975,4 @@ tput table;9263c12a-2688-4c01-8a4f-82fb8a85eff7Timestamp             Name      T
 
 ![alt text](imagenes/actividad4-1.png)
 
-1. Realizar el escaneo de vulnerabilidad con SonarCloud y Semgrep dentro del Github Action correspondiente.
+5. Realizar el escaneo de vulnerabilidad con SonarCloud y Semgrep dentro del Github Action correspondiente.
