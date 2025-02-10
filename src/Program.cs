@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Shorten.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Services.Interfaces;
 using Services.Implementations;
 using Settings;
 using Shorten.Areas.Domain;
@@ -33,19 +32,8 @@ builder.Services.AddDbContext<ShortenContext>(options =>
             errorNumbersToAdd: null)));
 
 // Configuración del servicio de correo electrónico
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-builder.Services.AddTransient<Services.Interfaces.IEmailSender, EmailSender>();
-
-// Leer la contraseña SMTP desde la variable de entorno y configurar EmailSettings
-var emailSettings = new EmailSettings
-{
-    SmtpServer = builder.Configuration["EmailSettings:SmtpServer"] ?? string.Empty,
-    SmtpPort = int.TryParse(builder.Configuration["EmailSettings:SmtpPort"], out var smtpPort) ? smtpPort : 0,
-    SenderName = builder.Configuration["EmailSettings:SenderName"] ?? string.Empty,
-    SenderEmail = builder.Configuration["EmailSettings:SenderEmail"] ?? string.Empty,
-    Username = builder.Configuration["EmailSettings:Username"] ?? string.Empty,
-    Password = Environment.GetEnvironmentVariable("SMTP_TOKEN") ?? string.Empty
-};
+builder.Services.Configure<SendGridSettings>(builder.Configuration.GetSection("SendGrid"));
+builder.Services.AddTransient<IEmailSender, SendGridEmailSender>();
 
 // Configuración de otros servicios
 builder.Services.AddQuickGridEntityFrameworkAdapter();
