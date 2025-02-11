@@ -14,9 +14,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write  # Necesario para hacer push al repositorio espejo
   packages: write
-  id-token: write  # Habilitar permisos de id-token
+  id-token: write  
 
 jobs:
   scan:
@@ -34,29 +34,9 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: scan  # Asegura que el escaneo se ejecute antes de compilar
+    needs: scan
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Cache dependencies
-        uses: actions/cache@v4  # 🔹 Solución aplicada
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-
-      - name: Restore dependencies
-        run: dotnet restore src
-
-      - name: Build project
-        run: dotnet build src --configuration Release --no-restore
+      - uses: actions/checkout@v4
 
       - name: 'Login to GitHub Container Registry'
         uses: docker/login-action@v3
@@ -65,49 +45,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
-      - name: 'Build and Push Docker Image'
+      - name: 'Build Inventory Image'
         run: |
           docker build ./src --tag ghcr.io/jeanvalverde24/shorten:${{ github.sha }}
           docker push ghcr.io/jeanvalverde24/shorten:${{ github.sha }}
-
-  sonarcloud:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Cache dependencies
-        uses: actions/cache@v4  # 🔹 Solución aplicada
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-sonar-
-
-      - name: Install Sonar Scanner
-        run: dotnet tool install --global dotnet-sonarscanner
-
-      - name: Run SonarCloud Analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: UPT-FAING-EPIS_lab-2024-rec-si982-u2-01-JeanValverde24
-          SONAR_ORGANIZATION: upt-faing-epis
-        run: |
-          dotnet-sonarscanner begin /k:"$SONAR_PROJECT_KEY" /o:"$SONAR_ORGANIZATION" /d:sonar.token="$SONAR_TOKEN"
-          dotnet build src --configuration Release
-          dotnet-sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
   deploy:
     permissions:
       contents: none
     runs-on: ubuntu-latest
-    needs: sonarcloud
+    needs: build
     environment:
       name: 'Development'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
@@ -121,10 +68,37 @@ jobs:
       - name: 'Set SENDGRID_API_KEY environment variable'
         run: echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API }}" >> $GITHUB_ENV
 
-      - name: 'Deploy to Azure Web App'
+      - name: 'Desplegar a Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           images: ghcr.io/jeanvalverde24/shorten:${{ github.sha }}
+
+  sync_mirror:
+    runs-on: ubuntu-latest
+    needs: build  # Sincronizar solo después del build
+    steps:
+      - name: 'Clonar el código del repositorio principal'
+        uses: actions/checkout@v4
+
+      - name: 'Configurar Git'
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: 'Clonar el repositorio espejo'
+        run: |
+          git clone https://github.com/JeanValverde24/pwebii_rec_u2_1_lab_mirror.git mirror_repo
+
+      - name: 'Copiar la carpeta src al repositorio espejo'
+        run: |
+          rsync -av --delete src/ mirror_repo/src/
+
+      - name: 'Hacer commit y push al repositorio espejo'
+        run: |
+          cd mirror_repo
+          git add .
+          git commit -m "Sync src/ from main repo to mirror"
+          git push https://JeanValverde24:${{ secrets.GITHUB_TOKEN }}@github.com/JeanValverde24/pwebii_rec_u2_1_lab_mirror.git main
