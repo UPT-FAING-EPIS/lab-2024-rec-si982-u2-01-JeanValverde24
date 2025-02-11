@@ -976,3 +976,22 @@ tput table;9263c12a-2688-4c01-8a4f-82fb8a85eff7Timestamp             Name      T
 ![alt text](imagenes/actividad4-1.png)
 
 5. Realizar el escaneo de vulnerabilidad con SonarCloud y Semgrep dentro del Github Action correspondiente.
+
+Repositorio que se usa como mirror: https://github.com/JeanValverde24/pwebii_rec_u2_1_lab_mirror
+
+Resultados en Semgrep:
+
+![image](https://github.com/user-attachments/assets/d20bbac8-7f20-479d-bd9b-bf2175029979)
+
+![image](https://github.com/user-attachments/assets/f0ca8a88-98a9-43c5-b8cd-43ae0774f022)
+
+![image](https://github.com/user-attachments/assets/845565ee-6dce-4a50-9812-9406a31731a0)
+
+Resultado en Sonarcloud:
+
+![image](https://github.com/user-attachments/assets/27022787-2c75-499b-89eb-3d69c5ec003b)
+
+![image](https://github.com/user-attachments/assets/ecd91634-42ba-45fb-b4a2-b6034bc11060)
+
+![image](https://github.com/user-attachments/assets/4fdf0835-7d62-4077-99b0-6ff7bc67b7ff)
+
