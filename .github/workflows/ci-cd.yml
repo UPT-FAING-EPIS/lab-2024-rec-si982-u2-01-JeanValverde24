@@ -50,10 +50,10 @@ jobs:
         run: dotnet restore ./src
 
       - name: Configurar caché de SonarCloud
-        uses: actions/cache@v4  # ✅ Usa la versión correcta de cache
+        uses: actions/cache@v4  # ✅ Se usa la versión correcta
         with:
           path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
+          key: ${{ runner.os }}-sonar-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-sonar
 
